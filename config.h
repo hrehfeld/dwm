@@ -34,6 +34,7 @@ static const Rule rules[] = {
 	{ "Firefox",  NULL,       NULL,       1 << TAG_NUM(9),       0,           -1 },
 	{ "Google-chrome",  NULL, NULL,       1 << TAG_NUM(6),       0,           -1 },
 	{ "Signal Desktop", NULL,  NULL,      1 << TAG_NUM(7),       0,           -1 },
+	{ "discord",  NULL,       NULL,       1 << TAG_NUM(7),       0,           -1 },
 	{ "Nextcloud", "nextcloud", NULL,     1 << TAG_NUM(9),       0,           -1 },
 	{ "KeePass2", NULL,       NULL,       1 << TAG_NUM(9),       0,           -1 },
 };
