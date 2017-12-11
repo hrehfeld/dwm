@@ -186,10 +186,15 @@ static void maprequest(XEvent *e);
 static void monocle(Monitor *m);
 static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
+static Client *nextclient(Client *c);
 static Client *nexttagged(Client *c);
 static Client *nexttiled(Client *c);
 static void pop(Client *);
+static Client *prevclient(Monitor *m, Client *c);
+static Client *prevtiled(Monitor *m, Client *c);
 static void propertynotify(XEvent *e);
+static void pushdown(const Arg *arg);
+static void pushup(const Arg *arg);
 static void quit(const Arg *arg);
 static Monitor *recttomon(int x, int y, int w, int h);
 static void resize(Client *c, int x, int y, int w, int h, int interact);
@@ -1251,6 +1256,12 @@ movemouse(const Arg *arg)
 }
 
 Client *
+nextclient(Client *c) {
+	for(; c && !ISVISIBLE(c); c = c->next);
+	return c;
+}
+
+Client *
 nexttagged(Client *c) {
 	Client *walked = c->mon->clients;
 	for(;
@@ -1259,6 +1270,7 @@ nexttagged(Client *c) {
 	);
 	return walked;
 }
+
 
 Client *
 nexttiled(Client *c)
@@ -1311,6 +1323,76 @@ propertynotify(XEvent *e)
 		if (ev->atom == netatom[NetWMWindowType])
 			updatewindowtype(c);
 	}
+}
+
+
+static Client *
+prevclient(Monitor *m, Client *c) {
+	Client *p, *r;
+
+	for(p = m->clients, r = NULL; c && p && p != c; p = p->next)
+		if(ISVISIBLE(p))
+			r = p;
+	return r;
+}
+
+static Client *
+prevtiled(Monitor *m, Client *c) {
+	Client *p, *r;
+
+	for(p = m->clients, r = NULL; c && p && p != c; p = p->next)
+		if(!p->isfloating && ISVISIBLE(p))
+			r = p;
+	return r;
+}
+
+static void
+pushup(const Arg *arg) {
+	Client *sel = selmon->sel;
+	Client *c;
+
+	if(!sel || (sel->isfloating && !arg->f))
+		return;
+	if((c = (arg->f ? prevclient(selmon, sel) : prevtiled(selmon, sel)))) {
+		/* attach before c */
+		detach(sel);
+		sel->next = c;
+		if(selmon->clients == c)
+			selmon->clients = sel;
+		else {
+			for(c = selmon->clients; c->next != sel->next; c = c->next);
+			c->next = sel;
+		}
+	} else {
+		/* move to the end */
+		for(c = sel; c->next; c = c->next);
+		detach(sel);
+		sel->next = NULL;
+		c->next = sel;
+	}
+	focus(sel);
+	arrange(selmon);
+}
+
+static void
+pushdown(const Arg *arg) {
+	Client *sel = selmon->sel;
+	Client *c;
+
+	if(!sel || (sel->isfloating && !arg->f))
+		return;
+	if((c = (arg->f ? nextclient(sel->next) : nexttiled(sel->next)))) {
+		/* attach after c */
+		detach(sel);
+		sel->next = c->next;
+		c->next = sel;
+	} else {
+		/* move to the front */
+		detach(sel);
+		attach(sel);
+	}
+	focus(sel);
+	arrange(selmon);
 }
 
 void
