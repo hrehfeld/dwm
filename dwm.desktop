@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=dwm
+Comment=Dynamic Window Manager for X
+Exec=/home/hrehfeld/bin/dwm
+Icon=/home/hrehfeld/projects/dwm/dwm
+Terminal=false
+StartupNotify=false
+Categories=Application;
