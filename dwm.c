@@ -1128,9 +1128,14 @@ manage(Window w, XWindowAttributes *wa)
 		applyrules(c);
 	}
 
+	/* TODO: is it OK to use c->bw before setting it? */
+	/* right border is outside monitor */
 	if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
+		/* shift to left so it fits */
 		c->x = c->mon->mx + c->mon->mw - WIDTH(c);
+	/* bottom border is outside monitor */
 	if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
+		/* shift up so it fits*/
 		c->y = c->mon->my + c->mon->mh - HEIGHT(c);
 	c->x = MAX(c->x, c->mon->mx);
 	/* only fix client y-offset, if the client center might cover the bar */
